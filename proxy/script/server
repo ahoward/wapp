@@ -17,8 +17,10 @@
   Bundler.with_unbundled_env do
   #system 'env|grep -i BUNDLE'
   #system 'env|grep -i PORT'
-    system 'echo $PATH'
+    system 'echo PATH=$PATH'
     system 'which http-proxy'
+    system 'curl http://localhost:3000'
+    system 'curl http://localhost:4000'
 
   #
     Dir.chdir(root)
