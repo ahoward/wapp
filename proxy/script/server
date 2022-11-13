@@ -17,6 +17,8 @@
   Bundler.with_unbundled_env do
   #system 'env|grep -i BUNDLE'
   #system 'env|grep -i PORT'
+    system 'echo $PATH'
+    system 'which http-proxy'
 
   #
     Dir.chdir(root)
