@@ -34,6 +34,8 @@ script do
       :env => {'PORT' => @ENV['FRONTEND_PORT']}
     )
 
+    sleep 0.42
+
     spawn(
       './proxy/script/server',
       :env => {'PORT' => @ENV['PORT']}
@@ -93,7 +95,10 @@ script do
   def spawn(cmd, options = {})
     env = env_for(options[:env] || {})
     pid = Process.spawn(env, cmd)
-    at_exit{ kill(pid) }
+    at_exit do
+      puts "kill(#{ pid })"
+      kill(pid)
+    end
   end
 
   def kill(pid)

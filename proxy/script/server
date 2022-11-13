@@ -17,17 +17,17 @@
   Bundler.with_unbundled_env do
   #system 'env|grep -i BUNDLE'
   #system 'env|grep -i PORT'
-    system 'echo PATH=$PATH'
-    system 'which http-proxy'
-    system 'curl http://localhost:3000'
-    system 'curl http://localhost:4000'
+    #system 'echo PATH=$PATH'
+    #system 'which http-proxy'
+    #system 'curl http://localhost:3000'
+    #system 'curl http://localhost:4000'
 
   #
     Dir.chdir(root)
 
   #
     command = %W[
-      http-proxy --port #{ port } 4000 /a=localhost:3000
+      http-proxy --port #{ port } 3000 /a=localhost:4000
     ]
 
     cmd = command.join(' ').strip
