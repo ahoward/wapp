@@ -1,0 +1,56 @@
+#! /bin/bash --login
+
+# FIXME this is just an example deploy to gcloud.
+#
+# it assumes an 'app.yaml' at the root of the project that looks something like....
+#
+# runtime: custom
+# env: flex
+#
+#
+
+#
+  set -x
+
+#
+  script_f="${BASH_SOURCE[0]}"
+  script_d="$( cd "$( dirname "${script_f}" )" >/dev/null 2>&1 && pwd )"
+  root_d="$( cd "$( dirname "${script_d}" )" >/dev/null 2>&1 && pwd )"
+
+#
+  cd $root_d
+
+#
+  #BUILD_TARGET=production TARGET=production ./docker/build
+  #HEROKU_APP=immense-bastion-13675
+  #DOCKER_CONTAINER=dojo4/dynamic--production
+
+  #export BUILD_TARGET="production"
+  #export PATH="./:$PATH"
+
+  project_id=test-docker-254404
+  service=test-docker
+  image=gcr.io/$project_id/$service
+
+  target=production ./docker/file > Dockerfile.production 
+
+  ln -sf ./Dockerfile.production ./Dockerfile
+
+  ./script/gcloud config set project $project_id
+  ./script/gcloud config get-value project
+
+# ref: https://cloud.google.com/appengine/docs/flexible/custom-runtimes/quickstart
+#
+
+# yes | gcloud app deploy
+# gcloud app logs tail -s default
+# glcoud app browse
+
+
+# ref: cloud run didn't quite work with traefik...
+#
+  ./script/gcloud builds submit --tag gcr.io/$project_id/$service
+  ./script/gcloud beta run deploy $service --image gcr.io/$project_id/$service --platform managed --region us-central1
+
+  rm Dockerfile
+  rm Dockerfile.production

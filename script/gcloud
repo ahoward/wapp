@@ -1,0 +1,30 @@
+#! /usr/bin/env ruby
+#
+# this script wraps gcloud such that the configuration is stored *in this directory*
+#
+# ref: https://stackoverflow.com/questions/44972947/is-there-a-better-way-to-set-a-gcloud-project-in-a-directory
+#
+# ref: ./gcloud help
+
+#
+  require 'pathname'
+
+#
+  script  = Pathname.new(__FILE__).realpath.to_s
+  root    = Pathname.new(script).dirname.dirname.to_s
+
+#
+  gcloud = `which -a gcloud`.strip.split(/\n/).detect do |path|
+    Pathname.new(path).realpath.to_s != script && test(?e, path)
+  end
+
+  abort('no gcloud in $PATH') unless gcloud
+p :root => root
+#
+  CLOUDSDK_CONFIG = File.join(root, '.gcloud')
+  ENV['CLOUDSDK_CONFIG'] = CLOUDSDK_CONFIG
+
+#
+  cmd = "#{ gcloud } #{ ARGV.join(' ') }"
+  exec(cmd)
+

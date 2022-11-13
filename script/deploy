@@ -1,0 +1,218 @@
+#! /usr/bin/env ruby
+# encoding: utf-8
+
+#
+
+script {
+#
+  help <<-____
+
+    NAME
+
+      ./script/deploy
+
+    TL;DR;
+
+      ./script/deploy production
+
+      ./script/deploy production.frontend
+
+  ____
+
+#
+  run{
+  #
+    Dir.chdir(Heroku.root_d)
+
+  #
+    @deploy = Map.new
+    
+  #
+    @deploy.path = (
+      @argv.shift || 'production'
+    )
+
+    @deploy.target = (
+      @options.fetch('target'){ ENV['target'] || ENV['TARGET'] || 'production' }
+    )
+
+    @deploy.senv = (
+      @options.fetch('senv'){ ENV['senv'] || ENV['SENV'] || 'production' }
+    )
+
+    @deploy.noop = (
+      @options.fetch('noop'){ ENV['noop'] || ENV['NOOP'] }
+    )
+
+    @deploy.heroku_api_key = (
+      @options.fetch('heroku_api_key'){ ENV.delete('HEROKU_API_KEY') }
+    )
+
+  #
+    @targets = Heroku.targets_for(@deploy.path)
+
+  #
+    @configs = configs_for(@targets)
+
+  #
+    @configs.each do |c|
+      commands = [
+        "#{ c.env } ./docker/file > #{ c.dockerfile }",
+        "cp #{ c.dockerfile } Dockerfile",
+        "#{ c.heroku } container:login",
+        "#{ c.heroku } config:set --app #{ c.app } #{ c.env }",
+        "#{ c.heroku } container:push web --app #{ c.app }",
+        "#{ c.heroku } container:release web --app #{ c.app }",
+        "rm #{ c.dockerfile } Dockerfile",
+        "#{ c.heroku } open --app #{ c.app }; true",
+      ]
+
+      if c.noop
+        STDERR.puts("### config = #{ c.to_json }")
+        STDERR.puts
+        STDERR.puts(commands.join("\n"))
+        STDERR.puts
+        STDERR.puts
+      else
+        commands.each_with_index do |command, i|
+          Say.say("###[#{ i }]===> #{ command }", :color => :magenta)
+
+          utils.sys!(command)
+
+          Say.say("###[#{ i }]---> SUCCESS", :color => :cyan)
+
+          puts
+        end
+      end
+    end
+  }
+
+  run(:config) do
+    puts "# file : #{ Heroku.config_yml }\n\n#{ Heroku.config.to_yaml }"
+  end
+
+protected
+  def configs_for(targets)
+    targets.map do |target|
+      Map.new.tap do |config|
+        config.update({
+          :noop       => @deploy.noop,
+          :senv       => @deploy.senv,
+          :target     => @deploy.target,
+          :path       => target.path,
+          :app        => target.app,
+          :dockerfile => [:Dockerfile, target.path, @deploy.senv].join('.'),
+        })
+
+        parts = target.path.split('.')
+
+        case parts.size
+          when 1
+            stage = parts[0]
+            service = nil
+          when 2
+            stage = parts[0]
+            service = parts[1]
+          else
+            abort "bad path=#{ target.path }"
+        end
+
+        config.update({
+          :stage => stage,
+          :service => service,
+        })
+
+        env = env_for(
+          :SENV    => config.senv,
+          :TARGET  => config.target,
+          :SERVICE => config.service
+        )
+
+        config.update(:env => env)
+
+        heroku = heroku_for(config)
+
+        config.update(:heroku => heroku)
+      end
+    end
+  end
+
+  def env_for(hash)
+    env = {}
+
+    hash.each do |k, v|
+      if v.to_s.strip.size > 0
+        env[k] = v
+      end
+    end
+
+    env.map{|k,v| "#{ k }=#{ Shellwords.escape(v) }"}.join(' ') 
+  end
+
+  def heroku_api_key_for(config)
+    if @deploy.heroku_api_key
+      @deploy.heroku_api_key
+    else
+      key = nil
+      utils.sys!("./bin/senv @#{ config.senv } .get HEROKU_API_KEY") do |status, stdout, stderr|
+        if status == 0 && stdout.strip.size > 0
+          key = stdout.strip
+        end
+      end
+      key
+    end
+  end
+
+  def heroku_for(config)
+  #
+    heroku_api_key = heroku_api_key_for(config)
+
+  #
+    return "heroku" unless heroku_api_key
+
+  #
+    heroku = nil
+    logged_in = nil
+    has_access = nil
+    use_api_key = nil
+
+    utils.sys!("heroku whoami") do |status, stdout, stderr|
+      if status == 0
+        logged_in = true
+      else
+        logged_in = false
+      end
+    end
+
+    utils.sys!("heroku config --app #{ config.app }") do |status, stdout, stderr|
+      if status == 0
+        has_access = true
+      else
+        has_access = false
+      end
+    end
+
+    if logged_in && has_access
+      use_api_key = false
+    else
+      use_api_key = true
+    end
+
+    if use_api_key && heroku_api_key
+      heroku = "HEROKU_API_KEY=#{ heroku_api_key } heroku"
+    else
+      heroku = "heroku"
+    end
+
+    heroku
+  end
+}
+
+BEGIN {
+  require_relative '../lib/script.rb'
+  require_relative '../lib/map.rb'
+  require_relative '../lib/heroku.rb'
+  require_relative '../lib/say.rb'
+  
+  Heroku.root_d = Dir.pwd
+}

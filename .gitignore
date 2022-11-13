@@ -1,0 +1,17 @@
+/Dockerfile
+/Dockerfile.*
+/.bundle
+/.senv/_key
+/docker/.senv/_key
+/.key
+/.gcloud
+/.pm2
+/.heroku/*
+@*
+tmp/*
+log/*
+vendor/bundle/*
+node_modules/*
+/vendor/bundle/*
+/node_modules/*
+

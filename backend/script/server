@@ -1,0 +1,63 @@
+#! /usr/bin/env ruby
+
+#
+  script = __FILE__
+  script_dir = File.expand_path(File.dirname(script))
+  root = File.dirname(script_dir)
+
+#
+  name = root.dup
+  port = ENV['BACKEND_PORT'] || ENV['PORT'] || '3000'
+  senv = ENV['SENV'] || 'development'
+
+#
+  Bundler.with_unbundled_env do
+  # system 'env|grep -i BUNDLE'
+
+    Dir.chdir(root)
+
+=begin
+    ENV['RAILS_SERVE_STATIC_FILES'] = '42'
+    ENV['RAILS_LOG_TO_STDOUT'] = '42'
+
+    ENV['RAILS_RELATIVE_URL_ROOT'] = '/_'
+    ENV['DISABLE_SPRING'] = 'true'
+
+    command = %W[
+      bundle exec
+        passenger start
+          --port #{ port }
+          --envvar DISABLE_SPRING=#{ ENV['DISABLE_SPRING'] }
+          --envvar RAILS_RELATIVE_URL_ROOT=#{ ENV['RAILS_RELATIVE_URL_ROOT'] }
+    ]
+
+    command = %W[
+      bundle exec
+        ./bin/rails server
+          --port #{ port }
+    ]
+=end
+
+    command = %W[
+      ruby app.rb -p #{ port }
+    ]
+    cmd = command.join(' ').strip
+
+    ENV['PORT'] = port
+    ENV['SENV'] = senv
+
+    env = "PORT=#{ port } SENV=#{ senv }"
+
+    loop do
+      puts "### #{ name }: #{ env } #{ cmd }"
+      system(cmd)
+      sleep 4.20
+    end
+  end
+
+BEGIN {
+  require 'bundler'
+
+  STDOUT.sync = true
+  STDERR.sync = true
+}

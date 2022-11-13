@@ -1,0 +1,17 @@
+#! /usr/bin/env ruby
+
+# ./script/dev should fire up everything the app needs to dev.  in particular,
+# it should provide a way to interact on the console with any/all processees
+# that need interacting with.  eg.  rails, nuxt, etc.
+#
+
+#
+  script_f = File.expand_path(__FILE__)
+  script_d = File.dirname(script_f)
+  root_d = File.dirname(script_d)
+
+#
+  Dir.chdir(root_d)
+
+#
+  system "tmuxinator start project app"

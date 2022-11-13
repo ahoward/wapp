@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# TODO: ./script/dependencies should install packages such as ruby or node
+# packages your app requires
+#
+
+#
+  set -e
+
+#
+  script_f="${BASH_SOURCE[0]}"
+  script_d="$( cd "$( dirname "${script_f}" )" >/dev/null 2>&1 && pwd )"
+  root_d="$( cd "$( dirname "${script_d}" )" >/dev/null 2>&1 && pwd )"
+
+#
+  cd $root_d
+
+#
+  cd backend
+  echo "dependencies @ $(dirname $(pwd))..."
+  if [ -f Gemfile ]; then
+    bundle config set path './vendor/bundle' --local
+    bundle config set jobs 4 --local
+    if [ "${TARGET}" = "production" ]; then
+      bundle config set --local without 'development test'
+    fi
+    bundle install
+  fi
+  if [ -f package.json ]; then
+    yarn install --check-files
+  fi
+  cd ..
+
+#
+  cd frontend
+  echo "dependencies @ $(dirname $(pwd))..."
+  pwd
+  if [ -f package.json ]; then
+    npm install
+  fi
+  cd ..

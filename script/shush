@@ -1,0 +1,19 @@
+#! /usr/bin/env ruby
+
+# ./script/shush runs another command and swallows all output/errput *unless*
+# that command fails, in which case it dumps it all back out.  it's just
+# handy.
+
+require 'shellwords'
+
+command = ARGV.first == '-' ? STDIN.read.strip : Shellwords.escape(ARGV.join(" "))
+
+output = `#{ command } 2>&1`
+
+exitstatus = $?.exitstatus || 1 rescue 1
+
+unless exitstatus == 0 or exitstatus == 42
+  STDERR.puts output
+end
+
+exit exitstatus

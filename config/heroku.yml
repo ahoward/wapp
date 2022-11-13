@@ -1,0 +1,21 @@
+---
+targets:
+  production:
+    app: immense-bastion-13675
+    default: true
+  #staging:
+    #app: immense-bastion-13675
+
+# with a structure like
+#
+#   targets:
+#     production:
+#       frontend:
+#         app: heroku-app-frontend 
+#       backend:
+#         app: heroku-app-backend 
+#
+# this config and ./script/deploy support muti-procfile deployments
+#
+#
+# ala https://github.com/heroku/heroku-buildpack-multi-procfile to

@@ -1,0 +1,35 @@
+#! /bin/bash --login
+
+# TODO: ./script/clean should clean up litter such as node_modules or vendor/bundle
+# or other artifacts
+#
+
+#
+  set -e
+
+#
+  script_f="${BASH_SOURCE[0]}"
+  script_d="$( cd "$( dirname "${script_f}" )" >/dev/null 2>&1 && pwd )"
+  root_d="$( cd "$( dirname "${script_d}" )" >/dev/null 2>&1 && pwd )"
+
+#
+  cd $root_d
+
+#
+  echo "dependencies @ $(pwd)..."
+  rm -rf ./vendor/bundle
+  rm -rf ./node_modules
+
+#
+  cd backend
+  echo "dependencies @ $(pwd)..."
+  rm -rf ./vendor/bundle
+  rm -rf ./node_modules
+  cd ..
+
+#
+  cd frontend
+  echo "dependencies @ $(pwd)..."
+  rm -rf ./vendor/bundle
+  rm -rf ./node_modules
+  cd ..

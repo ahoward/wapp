@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "description": "_",
+  "repository": "_",
+  "license": "AAL",
+  { "engines" : { "node": "18.12.1" } }
+}

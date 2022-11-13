@@ -1,0 +1,5 @@
+ENV['PORT'] ||= '8080'
+
+ENV['FRONTEND_PORT'] = '4000'
+
+ENV['BACKEND_PORT'] = '3000'

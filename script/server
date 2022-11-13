@@ -1,0 +1,112 @@
+#! /usr/bin/env ruby
+#  encoding: utf-8
+
+# TODO: ./script/server should start your app on $PORT, and any other services
+# you want to be running
+#
+
+require_relative '../lib/script.rb'
+require_relative '../lib/senv.rb'
+
+script do
+  help <<~____
+    # TODO
+  ____
+
+  run do
+    start
+  end
+
+  run :start do
+    start
+  end
+
+  def start
+    setup
+
+    spawn(
+      './backend/script/server',
+      :env => {'PORT' => @ENV['BACKEND_PORT']}
+    )
+
+    spawn(
+      './frontend/script/server',
+      :env => {'PORT' => @ENV['FRONTEND_PORT']}
+    )
+
+    spawn(
+      './proxy/script/server',
+      :env => {'PORT' => @ENV['PORT']}
+    )
+
+    sleep
+  end
+
+  def setup
+  #
+    @script_f = File.expand_path(__FILE__)
+    @script_d = File.dirname(@script_f)
+    @root_d = File.dirname(@script_d)
+
+    Dir.chdir(@root_d)
+
+  #
+    Senv.load
+
+  #
+    @ENV = Hash.new
+
+    @ENV['PORT']          = @options.fetch('port'){ ENV['PORT'] || '8080' }
+    @ENV['FRONTEND_PORT'] = @options.fetch('frontend_port'){ ENV['FRONTEND_PORT'] || '4000' }
+    @ENV['BACKEND_PORT']  = @options.fetch('backend_port'){ ENV['BACKEND_PORT'] || '3000' }
+    @ENV['SENV']          = @options.fetch('senv'){ ENV['SENV'] || 'development' }
+    @ENV['DEV']           = @options.fetch('dev'){ ENV['DEV']  || 'false' }
+
+  #
+    candidates = Dir.glob("/usr/lib/x86_64-linux-gnu/libjemalloc.so*").sort
+    jemalloc = candidates.last
+
+    if jemalloc
+      @ENV['LD_PRELOAD'] = [ENV["LD_PRELOAD"], jemalloc].compact.join(":")
+    end
+
+  #
+    path = ENV['PATH']
+
+    @ruby = utils.sys!('which ruby', :capture => true).strip
+    bindir, bin = File.split(@ruby)
+    path = [bindir, path].join(':')
+
+    @node = utils.sys!('which node', :capture => true).strip
+    bindir, bin = File.split(@node)
+    path = [bindir, path].join(':')
+
+    @ENV['PATH'] = path
+  end
+  
+  def env_for(env = {})
+    @ENV.merge(env)
+  end
+
+  def spawn(cmd, options = {})
+    env = env_for(options[:env] || {})
+    pid = Process.spawn(env, cmd)
+    at_exit{ kill(pid) }
+  end
+
+  def kill(pid)
+    %w( QUIT TERM ).each do |signal|
+      begin
+        Process.kill(signal, pid)
+      rescue Errno::ESRCH
+        nil
+      end
+    end
+
+    begin
+      Process.kill(-9, pid)
+    rescue Errno::ESRCH
+      nil
+    end
+  end
+end
