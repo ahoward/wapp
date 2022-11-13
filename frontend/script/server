@@ -10,7 +10,7 @@
 
 #
   name = root.dup
-  port = ENV['FRONTEND_PORT'] || ENV['PORT'] || '4000'
+  port = ENV['FRONTEND_PORT'] || ENV['PORT'] || '3000'
   senv = ENV['SENV'] || 'development'
 
 #

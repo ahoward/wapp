@@ -57,8 +57,8 @@ script do
     @ENV = Hash.new
 
     @ENV['PORT']          = @options.fetch('port'){ ENV['PORT'] || '8080' }
-    @ENV['FRONTEND_PORT'] = @options.fetch('frontend_port'){ ENV['FRONTEND_PORT'] || '4000' }
-    @ENV['BACKEND_PORT']  = @options.fetch('backend_port'){ ENV['BACKEND_PORT'] || '3000' }
+    @ENV['FRONTEND_PORT'] = @options.fetch('frontend_port'){ ENV['FRONTEND_PORT'] || '3000' }
+    @ENV['BACKEND_PORT']  = @options.fetch('backend_port'){ ENV['BACKEND_PORT'] || '4000' }
     @ENV['SENV']          = @options.fetch('senv'){ ENV['SENV'] || 'development' }
     @ENV['DEV']           = @options.fetch('dev'){ ENV['DEV']  || 'false' }
 

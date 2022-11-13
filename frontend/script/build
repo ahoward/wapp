@@ -1,0 +1,23 @@
+#! /bin/bash
+
+# TODO: ./script/build should do anything your app requires to be built, such
+# as compiling assets or binaries.
+#
+
+#
+  set -e
+
+#
+  script_f="${BASH_SOURCE[0]}"
+  script_d="$( cd "$( dirname "${script_f}" )" >/dev/null 2>&1 && pwd )"
+  root_d="$( cd "$( dirname "${script_d}" )" >/dev/null 2>&1 && pwd )"
+
+#
+  cd $root_d
+
+#
+  eval $(../bin/senv init)
+  echo "SENV=${SENV}"
+
+#
+  npm install

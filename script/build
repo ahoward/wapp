@@ -1,4 +1,4 @@
-#! /bin/bash --login
+#! /bin/bash
 
 # TODO: ./script/build should do anything your app requires to be built, such
 # as compiling assets or binaries.
@@ -17,22 +17,23 @@
 
 #
   eval $(./bin/senv init)
-  echo "SENV=${SENV}"
+  printf "==========\n"
+  printf "SENV=${SENV}\n"
 
 #
+  printf "\n\n--------\n"
   cd backend
-  pwd
   if [ -f ./script/build ]; then
-    echo "./script/build @ $(dirname $(pwd))..."
+    printf "./script/build @ $(pwd)...\n----\n"
     ./script/build
   fi
   cd ..
 
 #
+  printf "\n\n--------\n"
   cd frontend
-  pwd
   if [ -f ./script/build ]; then
-    echo "./script/build @ $(dirname $(pwd))..."
+    printf "./script/build @ $(pwd)...\n----\n"
     ./script/build
   fi
   cd ..

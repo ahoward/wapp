@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: wapp
+    env: ruby
+    buildCommand: "./script/build"
+    startCommand: "./script/server"
+    envVars:
+      - key: SENV
+        value: production

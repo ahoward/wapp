@@ -3,14 +3,9 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "http-proxy-cli": "^2.1.0"
+    "express": "^4.17.1"
   },
   "description": "_",
   "repository": "_",
-  "license": "AAL",
-  "engines": {
-    "node": "18.12.1",
-    "npm": "8.19.2"
-  }
+  "license": "AAL"
 }
