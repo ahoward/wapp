@@ -1,8 +1,4 @@
-/Dockerfile
-/Dockerfile.*
-/.bundle
 /.senv/_key
-/docker/.senv/_key
 /.key
 /.gcloud
 /.pm2
@@ -14,4 +10,3 @@ vendor/bundle/*
 node_modules/*
 /vendor/bundle/*
 /node_modules/*
-

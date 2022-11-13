@@ -39,7 +39,7 @@
 =end
 
     command = %W[
-      ruby app.rb -p #{ port }
+      bundle exec ruby app.rb -p #{ port }
     ]
     cmd = command.join(' ').strip
 
