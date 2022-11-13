@@ -20,4 +20,5 @@
   echo "SENV=${SENV}"
 
 #
-  bundle install --deployment
+  bundle config set --local deployment 'true'
+  bundle install
