@@ -81,6 +81,8 @@ script do
     bindir, bin = File.split(@node)
     path = [bindir, path].join(':')
 
+    path = ['node_modules/.bin', 'frontend/node_modules/.bin', 'backend/node_modules/.bin', path].join(':')
+
     @ENV['PATH'] = path
   end
   
