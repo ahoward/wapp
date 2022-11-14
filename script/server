@@ -66,11 +66,11 @@ script do
   #
     @servers = []
 
-    %w[ BACKEND FRONTEND PROXY ].each do |which|
+    %w[ backend frontend proxy ].each do |which|
       @servers.push({
         :name => which,
         :cmd => "./#{ which }/script/server",
-        :port => ENV.fetch("#{ which }_PORT"),
+        :port => ENV.fetch("#{ which.upcase }_PORT"),
         :env  => env_for('SERVER' => which),
       })
     end
