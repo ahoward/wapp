@@ -21,9 +21,10 @@
   pwd
 
 #
-  bundle config set --local deployment 'true'
+  #bundle config set --local deployment 'true'
   bundle install
-  ls -ltar
-  find vendor 
-  find .bundle || true
-  cat .bundle/config || true
+  #ls -ltar
+  #find vendor 
+  #find .bundle || echo 'no .bundle !' 
+  #cat .bundle/config || echo 'no .bundle/config !' 
+  #bundle -v

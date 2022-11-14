@@ -1,4 +1,4 @@
-/.senv/_key
+/.senv/.key
 /.key
 /.gcloud
 /.pm2
@@ -8,6 +8,6 @@ tmp/*
 log/*
 .bundle
 vendor/bundle/*
-node_modules/*
 /vendor/bundle/*
+node_modules/*
 /node_modules/*

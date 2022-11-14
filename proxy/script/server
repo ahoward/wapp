@@ -1,8 +1,4 @@
 #! /usr/bin/env ruby
-
-#
-  require 'bundler'
-
 #
   script = __FILE__
   script_dir = File.expand_path(File.dirname(script))
@@ -47,4 +43,6 @@
 BEGIN {
   STDOUT.sync = true
   STDERR.sync = true
+
+  require 'bundler'
 }

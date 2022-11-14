@@ -18,6 +18,7 @@
 #
   eval $(../bin/senv init)
   echo "SENV=${SENV}"
+  pwd
 
 #
   npm install

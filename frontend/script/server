@@ -1,8 +1,4 @@
 #! /usr/bin/env ruby
-
-#
-  require 'bundler'
-
 #
   script = __FILE__
   script_dir = File.expand_path(File.dirname(script))
@@ -15,10 +11,8 @@
 
 #
   Bundler.with_unbundled_env do
-
     Dir.chdir(root)
-
-    system('npm install')
+    Bundler.require
 
     command = %W[
       npm start
@@ -42,4 +36,6 @@
 BEGIN {
   STDOUT.sync = true
   STDERR.sync = true
+ 
+  require 'bundler'
 }
