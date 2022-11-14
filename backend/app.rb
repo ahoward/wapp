@@ -5,7 +5,7 @@ require 'yaml'
 
 class App < Sinatra::Base
   set :server, :puma
-  #set :bind, SOCKET_PATH
+  set :bind, '0.0.0.0'
 
   get %r`/.*` do
     "backend\n\n\n#{ ENV.to_hash.sort.to_yaml }"
