@@ -15,6 +15,7 @@
   # system 'env|grep -i BUNDLE'
 
     Dir.chdir(root)
+    Bundler.setup
 
 =begin
     ENV['RAILS_SERVE_STATIC_FILES'] = '42'
@@ -39,7 +40,7 @@
 =end
 
     command = %W[
-      bundle exec ruby app.rb -p #{ port }
+      ruby app.rb -p #{ port }
     ]
     cmd = command.join(' ').strip
 

@@ -5,8 +5,9 @@
 # you want to be running
 #
 
-require_relative '../lib/script.rb'
 require_relative '../lib/senv.rb'
+require_relative '../lib/script.rb'
+require_relative '../lib/assassin.rb'
 
 script do
   help <<~____
@@ -95,6 +96,9 @@ script do
   def spawn(cmd, options = {})
     env = env_for(options[:env] || {})
     pid = Process.spawn(env, cmd)
+
+    Assassin.at_exit_kill(pid)
+
     at_exit do
       puts "kill(#{ pid })"
       kill(pid)
@@ -113,6 +117,13 @@ script do
     begin
       Process.kill(-9, pid)
     rescue Errno::ESRCH
+      nil
+    end
+
+    begin
+      Process.wait(pid)
+    rescue Object => e 
+p :error => e
       nil
     end
   end
