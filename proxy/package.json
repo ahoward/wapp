@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "start": "./script/server"
+  },
+  "dependencies": {
+    "http-proxy-cli": "^2.1.0"
+  },
+  "description": "_",
+  "repository": "_",
+  "license": "AAL"
+}

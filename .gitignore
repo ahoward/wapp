@@ -7,7 +7,7 @@
 tmp/*
 log/*
 .bundle
-vendor/bundle/*
+vendor/bundle
 /vendor/bundle/*
-node_modules/*
-/node_modules/*
+node_modules
+/node_modules

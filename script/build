@@ -37,3 +37,12 @@
     ./script/build
   fi
   cd ..
+
+#
+  printf "\n\n--------\n"
+  cd proxy
+  if [ -f ./script/build ]; then
+    printf "./script/build @ $(pwd)...\n----\n"
+    ./script/build
+  fi
+  cd ..
