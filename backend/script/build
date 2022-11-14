@@ -24,6 +24,6 @@
   bundle config set --local deployment 'true'
   bundle install
   ls -ltar
-  find .bundle
-  find vendor
-  cat .bundle/config
+  find vendor 
+  find .bundle || true
+  cat .bundle/config || true
