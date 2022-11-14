@@ -1,48 +1,23 @@
 #! /usr/bin/env ruby
 #
+  require_relative '../../lib/util'
+
+#
   script = __FILE__
   script_dir = File.expand_path(File.dirname(script))
+
+#
   root = File.dirname(script_dir)
-
-#
-  name = root.dup
   port = ENV['PORT'] || '8080'
-  senv = ENV['SENV'] || 'development'
+  frontend_port = ENV['FRONTEND_PORT'] || '3000'
+  backend_port = ENV['BACKEND_PORT'] || '4000'
 
-#
-  #Bundler.with_unbundled_env do
-  #system 'env|grep -i BUNDLE'
-  #system 'env|grep -i PORT'
-    #system 'echo PATH=$PATH'
-    #system 'which http-proxy'
-    #system 'curl http://localhost:3000'
-    #system 'curl http://localhost:4000'
+  cmd = "http-proxy --verbose --port #{ port } #{ frontend_port } /a=localhost:#{ backend_port }"
 
-  #
-    Dir.chdir(root)
+  env = {
+    'PORT' => port
+  }
 
-  #
-    command = %W[
-      http-proxy --port #{ port } 3000 /a=localhost:4000
-    ]
+  Util.serve!(cmd, :root => root, :env => env)
 
-    cmd = command.join(' ').strip
-
-    ENV['PORT'] = port
-    ENV['SENV'] = senv
-
-    env = "PORT=#{ port } SENV=#{ senv }"
-
-    loop do
-      puts "### #{ name }: #{ env } #{ cmd }"
-      system(cmd)
-      sleep 4.20
-    end
-  #end
-
-BEGIN {
-  STDOUT.sync = true
-  STDERR.sync = true
-
-  #require 'bundler'
-}
+  sleep

@@ -1,40 +1,21 @@
 #! /usr/bin/env ruby
 #
+  require_relative '../../lib/util'
+
+#
   script = __FILE__
   script_dir = File.expand_path(File.dirname(script))
+
+#
   root = File.dirname(script_dir)
-
-#
-  name = root.dup
   port = ENV['FRONTEND_PORT'] || ENV['PORT'] || '3000'
-  senv = ENV['SENV'] || 'development'
 
-#
-  #Bundler.with_unbundled_env do
-    Dir.chdir(root)
+  cmd = "npm start"
 
-    command = %W[
-      npm start
-    ]
+  env = {
+    'PORT' => port
+  }
 
-    cmd = command.join(' ').strip
+  Util.serve!(cmd, :root => root, :env => env)
 
-    ENV['PORT'] = port
-    ENV['SENV'] = senv
-
-    env = "PORT=#{ port } SENV=#{ senv }"
-
-    loop do
-      puts "### #{ name }: #{ env } #{ cmd }"
-      system(cmd)
-      sleep 4.20
-    end
-  #end
-
-
-BEGIN {
-  STDOUT.sync = true
-  STDERR.sync = true
- 
-  #require 'bundler'
-}
+  sleep

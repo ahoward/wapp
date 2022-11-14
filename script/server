@@ -8,6 +8,7 @@
 require_relative '../lib/senv.rb'
 require_relative '../lib/script.rb'
 require_relative '../lib/assassin.rb'
+require_relative '../lib/util.rb'
 
 script do
   help <<~____
@@ -25,24 +26,19 @@ script do
   def start
     setup
 
-    spawn(
-      './backend/script/server',
-      :env => {'PORT' => @ENV['BACKEND_PORT']}
-    )
+    @servers.each do |config|
+      name = config.fetch(:name)
+      port = config.fetch(:port)
+      env = config.fetch(:env)
 
-    spawn(
-      './frontend/script/server',
-      :env => {'PORT' => @ENV['FRONTEND_PORT']}
-    )
+      background("./#{ name }/script/server", :env => env)
 
-    sleep 0.42
+      wait_until_bound(port)
+    end
 
-    spawn(
-      './proxy/script/server',
-      :env => {'PORT' => @ENV['PORT']}
-    )
+    wait_for_servers
 
-    sleep
+    teardown
   end
 
   def setup
@@ -59,19 +55,12 @@ script do
   #
     @ENV = Hash.new
 
-    @ENV['PORT']          = @options.fetch('port'){ ENV['PORT'] || '8080' }
-    @ENV['FRONTEND_PORT'] = @options.fetch('frontend_port'){ ENV['FRONTEND_PORT'] || '3000' }
     @ENV['BACKEND_PORT']  = @options.fetch('backend_port'){ ENV['BACKEND_PORT'] || '4000' }
+    @ENV['FRONTEND_PORT'] = @options.fetch('frontend_port'){ ENV['FRONTEND_PORT'] || '3000' }
+    @ENV['PORT']          = @options.fetch('port'){ ENV['PORT'] || '8080' }
+
     @ENV['SENV']          = @options.fetch('senv'){ ENV['SENV'] || 'development' }
-    @ENV['DEV']           = @options.fetch('dev'){ ENV['DEV']  || 'false' }
-
-  #
-    candidates = Dir.glob("/usr/lib/x86_64-linux-gnu/libjemalloc.so*").sort
-    jemalloc = candidates.last
-
-    if jemalloc
-      @ENV['LD_PRELOAD'] = [ENV["LD_PRELOAD"], jemalloc].compact.join(":")
-    end
+    @ENV['DEV']           = @options.fetch('dev'){ ENV['DEV'] || 'false' }
 
   #
     path = ENV['PATH']
@@ -84,47 +73,74 @@ script do
     bindir, bin = File.split(@node)
     path = [bindir, path].join(':')
 
-    path = ['node_modules/.bin', 'frontend/node_modules/.bin', 'backend/node_modules/.bin', path].join(':')
+    path = ['./node_modules/.bin', path].join(':')
 
     @ENV['PATH'] = path
+
+  #
+    @servers = [
+      {
+        :name => 'backend',
+        :port => @ENV.fetch('BACKEND_PORT'),
+        :env  => env_for('SERVER' => 'backend'),
+      },
+      {
+        :name => 'frontend',
+        :port => @ENV.fetch('FRONTEND_PORT'),
+        :env  => env_for('SERVER' => 'frontend'),
+      },
+      {
+        :name => 'proxy',
+        :port => @ENV.fetch('PORT'),
+        :env  => env_for('SERVER' => 'proxy'),
+      },
+    ]
+
+    @threads = []
+
+    STDOUT.sync = true
+    STDERR.sync = true
+  end
+
+  def background(cmd, options = {})
+    env = options.fetch(:env){ Hash.new }
+
+    cmd = "#{ cmd } 2>&1"
+
+    thread = Thread.new do
+      Thread.current.abort_on_exception = true
+      system(env, cmd)
+    end
+
+    @threads << thread
+
+    thread
+  end
+
+  def wait_until_bound(port)
+    bound = false
+
+    4.times do
+      sleep 0.1
+
+      if Util.port_open?(port)
+        sleep 0.42
+      else
+        bound = true
+      end
+    end
+
+    bound
+  end
+
+  def wait_for_servers
+    @threads.map{|thread| thread.join}
+  end
+
+  def teardown
   end
   
   def env_for(env = {})
     @ENV.merge(env)
-  end
-
-  def spawn(cmd, options = {})
-    env = env_for(options[:env] || {})
-    pid = Process.spawn(env, cmd)
-
-    Assassin.at_exit_kill(pid)
-
-    at_exit do
-      puts "kill(#{ pid })"
-      kill(pid)
-    end
-  end
-
-  def kill(pid)
-    %w( QUIT TERM ).each do |signal|
-      begin
-        Process.kill(signal, pid)
-      rescue Errno::ESRCH
-        nil
-      end
-    end
-
-    begin
-      Process.kill(-9, pid)
-    rescue Errno::ESRCH
-      nil
-    end
-
-    begin
-      Process.wait(pid)
-    rescue Object => e 
-p :error => e
-      nil
-    end
   end
 end
