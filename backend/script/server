@@ -1,21 +1,26 @@
 #! /usr/bin/env ruby
 #
+  require_relative '../../lib/senv'
   require_relative '../../lib/util'
 
 #
   script = __FILE__
   script_dir = File.expand_path(File.dirname(script))
+  root = File.dirname(script_dir)
 
 #
-  root = File.dirname(script_dir)
-  port = ENV['BACKEND_PORT'] || ENV['PORT'] || '4000'
+  Senv.load
 
-  cmd = "bundle exec ruby app.rb -p #{ port }"
+#
+  proxy_port = ENV.fetch('PROXY_PORT')
+  frontend_port = ENV.fetch('FRONTEND_PORT')
+  backend_port = ENV.fetch('BACKEND_PORT'){ ENV.fetch('PORT') }
 
-  env = {
-    'PORT' => port
-  }
+#
+  cmd = "PORT=#{ backend_port } bundle exec ruby app.rb"
 
-  Util.serve!(cmd, :root => root, :env => env)
+#
+  Util.serve!(cmd, :root => root, :port => backend_port)
 
+#
   sleep

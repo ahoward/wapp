@@ -16,8 +16,9 @@ module Util
 
   def serve!(cmd, options = {})
     root = File.expand_path(options.fetch(:root))
+    port = options.fetch(:port)
+
     env = options.fetch(:env){ Hash.new }
-    port = env.fetch('PORT').to_i
 
     STDOUT.sync = true
     STDERR.sync = true

@@ -619,7 +619,8 @@ BEGIN {
         return @root
       else
         Senv.search_path.each do |dirname|
-          if test(?d, dirname)
+          dotsenv = File.join(dirname, '.senv')
+          if test(?d, dotsenv)
             Senv.root = dirname
             return @root
           end

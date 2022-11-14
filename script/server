@@ -27,11 +27,12 @@ script do
     setup
 
     @servers.each do |config|
+      cmd = config.fetch(:cmd)
       name = config.fetch(:name)
-      port = config.fetch(:port)
       env = config.fetch(:env)
+      port = config.fetch(:port)
 
-      background("./#{ name }/script/server", :env => env)
+      background(cmd, :env => env)
 
       wait_until_bound(port)
     end
@@ -50,51 +51,30 @@ script do
     Dir.chdir(@root_d)
 
   #
+    %w[ BACKEND_PORT FRONTEND_PORT PROXY_PORT PORT ].each do |option|
+      if @options[option]
+        ENV[option] = @options[option]
+      end
+    end
+
+  #
     Senv.load
 
   #
-    @ENV = Hash.new
-
-    @ENV['BACKEND_PORT']  = @options.fetch('backend_port'){ ENV['BACKEND_PORT'] || '4000' }
-    @ENV['FRONTEND_PORT'] = @options.fetch('frontend_port'){ ENV['FRONTEND_PORT'] || '3000' }
-    @ENV['PORT']          = @options.fetch('port'){ ENV['PORT'] || '8080' }
-
-    @ENV['SENV']          = @options.fetch('senv'){ ENV['SENV'] || 'development' }
-    @ENV['DEV']           = @options.fetch('dev'){ ENV['DEV'] || 'false' }
+    @ENV = Hash.new.update(ENV.to_hash) 
 
   #
-    path = ENV['PATH']
+    @servers = []
 
-    @ruby = utils.sys!('which ruby', :capture => true).strip
-    bindir, bin = File.split(@ruby)
-    path = [bindir, path].join(':')
+    %w[ BACKEND FRONTEND PROXY ].each do |which|
+      @servers.push({
+        :name => which,
+        :cmd => "./#{ which }/script/server",
+        :port => ENV.fetch("#{ which }_PORT"),
+        :env  => env_for('SERVER' => which),
+      })
+    end
 
-    @node = utils.sys!('which node', :capture => true).strip
-    bindir, bin = File.split(@node)
-    path = [bindir, path].join(':')
-
-    path = ['./node_modules/.bin', path].join(':')
-
-    @ENV['PATH'] = path
-
-  #
-    @servers = [
-      {
-        :name => 'backend',
-        :port => @ENV.fetch('BACKEND_PORT'),
-        :env  => env_for('SERVER' => 'backend'),
-      },
-      {
-        :name => 'frontend',
-        :port => @ENV.fetch('FRONTEND_PORT'),
-        :env  => env_for('SERVER' => 'frontend'),
-      },
-      {
-        :name => 'proxy',
-        :port => @ENV.fetch('PORT'),
-        :env  => env_for('SERVER' => 'proxy'),
-      },
-    ]
 
     @threads = []
 
