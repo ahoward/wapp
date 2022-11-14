@@ -10,9 +10,8 @@
   senv = ENV['SENV'] || 'development'
 
 #
-  Bundler.with_unbundled_env do
+  #Bundler.with_unbundled_env do
     Dir.chdir(root)
-    Bundler.require
 
     command = %W[
       npm start
@@ -30,12 +29,12 @@
       system(cmd)
       sleep 4.20
     end
-  end
+  #end
 
 
 BEGIN {
   STDOUT.sync = true
   STDERR.sync = true
  
-  require 'bundler'
+  #require 'bundler'
 }
