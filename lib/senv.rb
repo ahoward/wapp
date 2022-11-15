@@ -652,17 +652,36 @@ BEGIN {
     end
 
     def Senv.key_path
-      Senv.directory.join('.key')
+      Senv.key_search_path.detect do |key_path|
+        return key_path if test(?f, key_path)
+      end
+
+      nil
+    end
+
+    def Senv.key_search_path
+      key_search_path = []
+
+      if ENV['SENV_KEY_PATH']
+        ENV['SENV_KEY_PATH'].split(':').each do |key_path|
+          key_search_path << Senv.expand_path(key_path).to_s
+        end
+      else
+        key_search_path << Senv.directory.join("#{ Senv.env || Senv::DEFAULT }.key")
+        key_search_path << Senv.directory.join(".key")
+      end
+
+      key_search_path
     end
 
     def Senv.key
       if ENV['SENV_KEY']
         ENV['SENV_KEY']
       else
-        if Senv.key_path.exist?
-          Senv.key_path.binread.strip
+        if Senv.key_path
+          IO.binread(Senv.key_path).strip
         else
-          msg = "Senv.key not found in : #{ Senv.key_path }"
+          msg = "Senv.key not found in : #{ Senv.key_search_path.join(' || ') }"
           Senv.error!(msg)
         end
       end
