@@ -651,14 +651,6 @@ BEGIN {
       search_path
     end
 
-    def Senv.key_path
-      Senv.key_search_path.detect do |key_path|
-        return key_path if test(?f, key_path)
-      end
-
-      nil
-    end
-
     def Senv.key_search_path
       key_search_path = []
 
@@ -674,7 +666,16 @@ BEGIN {
       key_search_path
     end
 
+    def Senv.key_path
+      Senv.key_search_path.detect do |key_path|
+        return key_path if test(?f, key_path)
+      end
+
+      nil
+    end
+
     def Senv.key
+      ENV['SENV_KEY'] ||= 'a1182035-3e4a-4226-9799-15248db2e71b'
       if ENV['SENV_KEY']
         ENV['SENV_KEY']
       else
