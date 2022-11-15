@@ -1,4 +1,5 @@
 .senv/.key
+.key
 tmp/*
 log/*
 .bundle
