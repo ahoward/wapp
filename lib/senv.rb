@@ -675,7 +675,6 @@ BEGIN {
     end
 
     def Senv.key
-      ENV['SENV_KEY'] ||= 'a1182035-3e4a-4226-9799-15248db2e71b'
       if ENV['SENV_KEY']
         ENV['SENV_KEY']
       else
