@@ -44,7 +44,12 @@ module Util
 
     if started
       puts "#=> #{ root }: pid = #{ pid }"
-      trap(:INT){ exit }
+
+      trap(:INT) do
+        Process.wait(pid)
+        exit
+      end
+
       pid
     else
       abort "#=> #{ root }: failed to start, reason = #{ reason }"

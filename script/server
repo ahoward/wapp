@@ -1,13 +1,8 @@
 #! /usr/bin/env ruby
 #  encoding: utf-8
 
-# TODO: ./script/server should start your app on $PORT, and any other services
-# you want to be running
-#
-
 require_relative '../lib/senv.rb'
 require_relative '../lib/script.rb'
-require_relative '../lib/assassin.rb'
 require_relative '../lib/util.rb'
 
 script do
@@ -80,6 +75,11 @@ script do
 
     STDOUT.sync = true
     STDERR.sync = true
+
+    at_exit do
+      STDOUT.flush
+      STDERR.flush
+    end
   end
 
   def background(cmd, options = {})
