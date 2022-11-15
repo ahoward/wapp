@@ -17,7 +17,7 @@
   backend_port = ENV.fetch('BACKEND_PORT')
 
 #
-  cmd = "PORT=#{ proxy_port } http-proxy --hostname 0.0.0.0 --proxyHost --verbose --port #{ proxy_port } #{ frontend_port } /a/=0.0.0.0:#{ backend_port }"
+  cmd = "HOST=0.0.0.0 PORT=#{ proxy_port } http-proxy --hostname 0.0.0.0 --proxyHost --verbose --port #{ proxy_port } 0.0.0.0:#{ frontend_port } /a/=0.0.0.0:#{ backend_port }"
 
 #
   Util.serve!(cmd, :root => root, :port => proxy_port)

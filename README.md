@@ -20,5 +20,8 @@
   ### boot 'er up dawg!
   ~> ./script/server
 
+  ### handy dev script (gots to learn tmux!)
+  ~> gem install tmuxinator && ./script/dev
+
 
 ```
